@@ -15,18 +15,66 @@ function makeCircle(x,y){
 
 var addCircle = function(event){
     //if (event.target == this) ????
-        c.appendChild(makeCircle(event.offsetX,event.offsetY));
+        circle = makeCircle(event.offsetX,event.offsetY)
+        c.appendChild(circle);
+        circle.addEventListener('click', changeColor);
 };
 
 var changeColor = function(event){
     this.setAttribute("fill","green")
     this.addEventListener("click",remove);
-
+    event.stopPropagation();
 };
 
 var remove = function(event){
-    c.appendChild(makeCircle(int(Math.random() * w), int(Math.random() * h)));
+    c.appendChild(makeCircle(Math.random() * w, Math.random() * h));
     c.removeChild(this);
+    event.stopPropagation();
+};
+
+var move = function(){
+
+    var increasex = true;
+    var increasey = true;
+
+    var drawDot = function() {
+        //console.log(d.width.animVal)
+        //console.log(d.height.animVal)
+        
+        d.setAttribute("x",xcor);
+        d.setAttribute("y",ycor);
+        if (xcor + 20 >= w){
+            increasex=false;
+        }
+
+        if (xcor - 20<= 0){
+            increasex=true;
+        }
+
+        if (ycor + 20 >= h){
+            increasey=false;
+        }
+
+        if (ycor - 20 <= 0){
+            increasey=true;
+        }
+
+        if (increasex){
+            xcor++;
+        }else{
+            xcor--;
+        }
+
+        if (increasey){
+            ycor++;
+        }else{
+            ycor--;
+        }  
+
+        requestID = window.requestAnimationFrame( drawDot );
+
+    }
+    drawDot();
 };
 
 
@@ -41,5 +89,5 @@ var clearSVG = function(){
 
 c.addEventListener('click', addCircle);
 
-var clear = document.getElementById( "b" );
+var clear = document.getElementById( "clear-but" );
 clear.addEventListener("click", clearSVG);
