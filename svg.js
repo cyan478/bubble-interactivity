@@ -2,11 +2,10 @@ var c = document.getElementById("vimage");
 var xmlns = "http://www.w3.org/2000/svg";
 var w = c.getBoundingClientRect().width
 var h = c.getBoundingClientRect().height
-var r = 20;
 var requestID;
 var animate = true;
 
-function makeCircle(x,y){
+function makeCircle(x,y,r){
     var c1 = document.createElementNS( xmlns, "circle");
     c1.setAttribute("cx",x)
     c1.setAttribute("cy",y)
@@ -17,11 +16,12 @@ function makeCircle(x,y){
     return c1;
 };
 
-var addCircle = function(event){
+var addCircle = function(x,y,r){
     //if (event.target == this) ????
-        circle = makeCircle(event.offsetX,event.offsetY)
-        c.appendChild(circle);
-        circle.addEventListener('click', changeColor);
+    circle = makeCircle(x,y,r)
+    c.appendChild(circle);
+    circle.addEventListener('click', changeColor);
+    return circle
 };
 
 var changeColor = function(event){
@@ -45,14 +45,18 @@ var moveC = function(){
             //console.log(d.width.animVal)
             //console.log(d.height.animVal)
             var circles = document.getElementsByTagName('circle')
+	    circles = [].slice.call(circles)
             var xcor,ycor,dx,dy;
+	    var done;
             
             for (var i = 0; i < circles.length;i++){
+		done = false;
                 circle = circles[i]
                 xcor = parseInt(circle.getAttribute("cx"));
                 ycor = parseInt(circle.getAttribute("cy"));
                 dx = parseInt(circle.getAttribute("dx"));
                 dy = parseInt(circle.getAttribute("dy"));
+		r = parseInt(circle.getAttribute("r"));
                 
                 if (xcor + r >= w){
                     dx=-1
@@ -69,6 +73,21 @@ var moveC = function(){
                 if (ycor - r <= 0){
                     dy=1;
                 }
+
+		if (xcor == w/2 && done==false){
+		    circle.setAttribute("r",r/2);
+		    if (r <= 2){
+			c.removeChild(circle);
+			i-=1;
+		    }else{
+			newCircle = addCircle(xcor,ycor);
+			newCircle.setAttribute("dx",-1);
+			newCircle.setAttribute("dy",-1);
+			newCircle.setAttribute("r",r/2);
+			c.appendChild(newCircle);
+		    }
+		    done = true;
+		}
                 circle.setAttribute("cx",xcor+dx) 
                 circle.setAttribute("cy",ycor+dy)
                 circle.setAttribute("dx",dx)
@@ -93,7 +112,9 @@ var clearSVG = function(){
 
 
 
-c.addEventListener('click', addCircle);
+c.addEventListener('click', function(e){
+    addCircle(e.offsetX,e.offsetY,40)
+});
 
 var clear = document.getElementById( "clear-but" );
 clear.addEventListener("click", clearSVG);
